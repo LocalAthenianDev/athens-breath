@@ -73,12 +73,37 @@
   setDark(); dark.addEventListener?.('change', setDark);
 
   const kLayer = L.layerGroup().addTo(map);
+  const gLayer = L.layerGroup().addTo(map);
   const sLayer = L.layerGroup().addTo(map);
   const polys = {}; const dots = {};
+  let GREEN = [];
+  const GREEN_MAX_M = 1000; // πέρα από 1 χλμ. δεν δείχνουμε αέρα για έναν χώρο πρασίνου
+
+  // Απόσταση σε μέτρα
+  function meters(a, b, c, d) {
+    const R = 6371000, r = Math.PI / 180;
+    const x = Math.sin(((c - a) * r) / 2) ** 2 + Math.cos(a * r) * Math.cos(c * r) * Math.sin(((d - b) * r) / 2) ** 2;
+    return 2 * R * Math.asin(Math.sqrt(x));
+  }
+  const fmtM = (m) => (m < 950 ? `${Math.round(m / 50) * 50 || 50} μ.` : `${(m / 1000).toLocaleString('el-GR', { maximumFractionDigits: 1 })} χλμ.`);
+
+  // Για κάθε χώρο πρασίνου, ο κοντινότερος σταθμός σε λειτουργία που έχει δείκτη για την περίοδο
+  function greenWithAir() {
+    const sts = (S.data?.stations || []).filter((s) => s.online && s.lat !== null && valueOf(s, 'aqi') !== null);
+    return GREEN.map((g) => {
+      let best = null, dist = Infinity;
+      for (const s of sts) { const m = meters(g.lat, g.lon, s.lat, s.lon); if (m < dist) { dist = m; best = s; } }
+      return { ...g, station: dist <= GREEN_MAX_M ? best : null, dist };
+    });
+  }
+  const greenRank = (g) => (g.station ? valueOf(g.station, 'aqi') * 1e4 + (valueOf(g.station, 'pm2_5') ?? 50) * 10 + g.dist / 1e4 : Infinity);
+  const leafIcon = L.divIcon({ className: 'leaf', iconSize: [18, 18], iconAnchor: [9, 9],
+    html: '<svg viewBox="0 0 18 18" aria-hidden="true"><path d="M9 2C5 5 4 8.5 4.6 11.3 5.2 14 7.4 15.6 9 16c1.6-.4 3.8-2 4.4-4.7C14 8.5 13 5 9 2Z"/><path d="M9 6v10" fill="none"/></svg>' });
   const toLL = (r) => (typeof r[0][0][0] === 'number' ? [r] : r).map((p) => p.map((ring) => ring.map(([x, y]) => [y, x])));
 
   async function loadBoundaries() {
-    const [k, s] = await Promise.all([fetch('data/koinotites.json').then((r) => r.json()), fetch('data/synoikies.json').then((r) => r.json())]);
+    const [k, s, g] = await Promise.all([fetch('data/koinotites.json').then((r) => r.json()), fetch('data/synoikies.json').then((r) => r.json()), fetch('data/green.json').then((r) => r.json()).catch(() => [])]);
+    GREEN = g;
     // Συνοικίες: μόνο λεπτό περίγραμμα για προσανατολισμό
     for (const x of s) L.polygon(toLL(x.r), { color: '#1d4f91', weight: 0.6, opacity: 0.35, fill: false, interactive: false, dashArray: x.pl ? '3 3' : null }).addTo(kLayer);
     const bounds = L.latLngBounds([]);
@@ -121,6 +146,17 @@
       mk.on('click', () => go({ type: 'station', id: s.id }));
       mk.addTo(sLayer); dots[s.id] = mk;
     }
+    gLayer.clearLayers();
+    for (const g of greenWithAir()) {
+      const v = g.station ? valueOf(g.station) : null;
+      const air = g.station
+        ? `${tipValue(m, v)}<br><small>από τον σταθμό ${esc(g.station.name)}, ${fmtM(g.dist)}</small>`
+        : '<br><small>Δεν υπάρχει σταθμός σε απόσταση 1 χλμ.</small>';
+      const mk = L.marker([g.lat, g.lon], { icon: leafIcon, keyboard: false, zIndexOffset: -1000 })
+        .bindTooltip(`<b>${esc(g.n)}</b>${air}`, { className: 'tip', direction: 'top', offset: [0, -8] });
+      if (g.station) mk.on('click', () => go({ type: 'station', id: g.station.id }));
+      mk.addTo(gLayer);
+    }
     renderLegend();
   }
   function tipValue(m, v) {
@@ -129,10 +165,18 @@
     return `<br>${METRICS[m].label} ${fmt1(v)} ${METRICS[m].unit}`;
   }
 
+  function greenToggle() {
+    if (!GREEN.length) return '';
+    return `<label class="gtoggle"><input type="checkbox" id="greenOn"${map.hasLayer(gLayer) ? ' checked' : ''}><span class="leaf-sw"></span>Χώροι πρασίνου (${GREEN.length})</label>`;
+  }
+  $('#legend').addEventListener('change', (e) => {
+    if (e.target.id !== 'greenOn') return;
+    if (e.target.checked) gLayer.addTo(map); else map.removeLayer(gLayer);
+  });
   function renderLegend() {
     const m = S.metric; const el = $('#legend');
     if (m === 'temperature') {
-      el.innerHTML = `<div class="t">Θερμοκρασία ${esc(PERIODS[S.period])}</div><div class="ramp"></div><div class="ends"><span>5°C</span><span>20°C</span><span>35°C</span></div>`;
+      el.innerHTML = `<div class="t">Θερμοκρασία ${esc(PERIODS[S.period])}</div><div class="ramp"></div><div class="ends"><span>5°C</span><span>20°C</span><span>35°C</span></div>` + greenToggle();
       return;
     }
     const head = m === 'aqi' ? 'Ποιότητα αέρα' : `${METRICS[m].label} σε μg/m³`;
@@ -142,7 +186,7 @@
       return `<span class="it"><span class="sw" style="background:${QCOL[i]}"></span>${lab}</span>`;
     }).join('');
     el.innerHTML = `<div class="t">${head} ${esc(PERIODS[S.period])}</div><div class="row">${items}</div>` +
-      (m !== 'aqi' ? '<div class="note">Βαθμίδες του Ευρωπαϊκού Δείκτη Ποιότητας Αέρα</div>' : '');
+      (m !== 'aqi' ? '<div class="note">Βαθμίδες του Ευρωπαϊκού Δείκτη Ποιότητας Αέρα</div>' : '') + greenToggle();
   }
 
   // ---------- πάνελ ----------
@@ -205,6 +249,14 @@
     return v * 1e4 + (valueOf(o, 'pm2_5') ?? 50) * 10 + (valueOf(o, 'no2') ?? 50) / 100;
   };
 
+  function greenBlock(list, title, empty) {
+    const rows = list.map((g, i) => {
+      const v = valueOf(g.station, 'aqi');
+      return `<li><button data-s="${g.station.id}"><span class="rk">${i + 1}</span><span class="nm">${esc(g.n)}<small>${levelText(Math.round(v))} · σταθμός ${esc(g.station.name)}, ${fmtM(g.dist)}</small></span><span class="val"><span class="chip" style="background:${colorOf('aqi', v)}"></span></span></button></li>`;
+    }).join('');
+    return `<h3>${title}</h3>` + (rows ? `<ol class="list green">${rows}</ol>` : `<p class="sub">${empty}</p>`);
+  }
+
   function renderCity() {
     const d = S.data; const c = d.city;
     const list = [...d.communities].sort((a, b) => sortKey(a) - sortKey(b));
@@ -215,6 +267,7 @@
       ${heroBlock(c)}${kpis(c)}
       <h3>Κοινότητες, από την πιο καθαρή${esc(unit)}</h3>
       <ol class="list">${list.map((k, i) => rankingRow(k, valueOf(k) === null ? '–' : i + 1, `data-k="${k.id}"`, `${k.online} σταθμοί`)).join('')}</ol>
+      ${greenBlock(greenWithAir().filter((g) => g.station).sort((a, b) => greenRank(a) - greenRank(b)).slice(0, 5), `Πράσινο με τον πιο καθαρό αέρα ${esc(PERIODS[S.period])}`, '')}
       ${facts(c)}${chartBlock()}`;
     loadDetail('api/city');
   }
@@ -228,10 +281,18 @@
       <h2>${esc(c.name)}</h2>
       <p class="sub">${c.online} από ${c.stations} σταθμούς σε λειτουργία${c.rank ? ` · ${c.rank}η από 7 στον μήνα` : ''}</p>
       ${heroBlock(c)}${kpis(c)}
+      ${greenBlock(greenWithAir().filter((g) => g.station && g.dk === id).sort((a, b) => greenRank(a) - greenRank(b)), `Χώροι πρασίνου της κοινότητας, από τον πιο καθαρό αέρα ${esc(PERIODS[S.period])}`, 'Τα τοπωνύμια του Δήμου δεν έχουν καταγεγραμμένο χώρο πρασίνου σε αυτή την κοινότητα.')}
       ${facts(c)}${chartBlock()}
       <h3>Σταθμοί της κοινότητας</h3>
       <ol class="list">${sts.map((s, i) => rankingRow(s, s.online && valueOf(s) !== null ? i + 1 : '–', `data-s="${s.id}"`, s.online ? s.neighbourhood : 'Εκτός λειτουργίας')).join('')}</ol>`;
     loadDetail(`api/communities/${id}`);
+  }
+
+  function nearGreen(s) {
+    if (s.lat === null) return '';
+    const near = GREEN.map((g) => ({ ...g, dist: meters(g.lat, g.lon, s.lat, s.lon) })).filter((g) => g.dist <= GREEN_MAX_M).sort((a, b) => a.dist - b.dist);
+    if (!near.length) return '';
+    return `<h3>Χώροι πρασίνου κοντά στον σταθμό</h3><ul class="near">${near.map((g) => `<li><span class="leaf-sw"></span>${esc(g.n)}<span>${fmtM(g.dist)}</span></li>`).join('')}</ul>`;
   }
 
   function renderStation(id) {
@@ -251,6 +312,7 @@
       ${notes.join('')}
       ${heroBlock(s)}${kpis(s)}
       ${facts(s)}${chartBlock()}
+      ${nearGreen(s)}
       <div class="links">${links.join('')}</div>`;
     loadDetail(`api/stations/${id}`);
   }

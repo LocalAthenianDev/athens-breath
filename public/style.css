@@ -207,3 +207,16 @@ button { font: inherit; color: inherit; }
 }
 
 .leaflet-control-attribution { background: color-mix(in srgb, var(--wall-2) 85%, transparent) !important; color: var(--muted); }
+
+/* ---------- χώροι πρασίνου ---------- */
+.leaf { background: none; border: 0; }
+.leaf svg { width: 18px; height: 18px; display: block; filter: drop-shadow(0 1px 1px rgba(0,0,0,.35)); }
+.leaf path:first-child { fill: #2f7d32; stroke: #fff; stroke-width: 1.4; }
+.leaf path:last-child { stroke: #cfe9cf; stroke-width: 1; }
+.leaf-sw { display: inline-block; width: 10px; height: 13px; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; background: #2f7d32; flex: 0 0 auto; }
+.gtoggle { display: flex; align-items: center; gap: 6px; margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--rule); cursor: pointer; font-weight: 600; }
+.gtoggle input { margin: 0; accent-color: #2f7d32; }
+.list.green .rk { color: #2f7d32; }
+.near { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.near li { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+.near li span:last-child { margin-left: auto; color: var(--muted); font-variant-numeric: tabular-nums; }

@@ -16,7 +16,7 @@
   <link rel="stylesheet" href="vendor/commissioner/600.css">
   <link rel="stylesheet" href="vendor/commissioner/700.css">
   <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
-  <link rel="stylesheet" href="style.css?v=2">
+  <link rel="stylesheet" href="style.css?v=3">
 </head>
 <body>
   <div id="envbar" class="envbar" hidden>Δοκιμαστική έκδοση</div>
@@ -60,6 +60,7 @@
         <h2>Πώς διαβάζεται</h2>
         <p>Ο <strong>Δείκτης αέρα</strong> είναι ο Ευρωπαϊκός Δείκτης Ποιότητας Αέρα (EAQI) σε έξι βαθμίδες, από «Πολύ καλή» έως «Εξαιρετικά κακή». Κάθε ώρα παίρνει τη χειρότερη βαθμίδα ανάμεσα σε PM2.5, PM10, NO₂, O₃ και SO₂.</p>
         <p>Οι <strong>κοινότητες</strong> χρωματίζονται με τη διάμεσο των σταθμών τους για κάθε ώρα, ώστε ένας σταθμός σε πολυσύχναστο δρόμο να μη χαλάει μόνος του την εικόνα όλης της περιοχής.</p>
+        <p>Οι <strong>χώροι πρασίνου</strong> (άλση, λόφοι, πάρκα) παίρνουν τον αέρα του κοντινότερου σταθμού σε απόσταση έως 1 χλμ. Δείχνουν πού μπορείς να πας για καθαρό αέρα, όχι ότι ο ίδιος ο χώρος καθαρίζει τον αέρα.</p>
         <p>Η <strong>καλύτερη ώρα για βόλτα</strong> βγαίνει από τον μέσο δείκτη κάθε ώρας της ημέρας τις τελευταίες 30 ημέρες. Για τα σωματίδια συγκρίνουμε και με τα ημερήσια όρια του Παγκόσμιου Οργανισμού Υγείας (2021).</p>
       </div>
       <div>
@@ -70,7 +71,7 @@
       </div>
       <div>
         <h2>Δεδομένα και κώδικας</h2>
-        <p>Όλα έρχονται live από την <a href="https://opendata.cityofathens.gr/dataset/env-all-stations" target="_blank" rel="noopener">πλατφόρμα ανοιχτών δεδομένων του Δήμου Αθηναίων</a> (CC BY 4.0), από το Υποέργο 3 της Έξυπνης Πόλης. Τα όρια των κοινοτήτων είναι του Δήμου, μέσα από το <a href="https://athenshoods.gr" target="_blank" rel="noopener">athenshoods.gr</a>. Υπόβαθρο χάρτη © συντελεστές OpenStreetMap.</p>
+        <p>Όλα έρχονται live από την <a href="https://opendata.cityofathens.gr/dataset/env-all-stations" target="_blank" rel="noopener">πλατφόρμα ανοιχτών δεδομένων του Δήμου Αθηναίων</a> (CC BY 4.0), από το Υποέργο 3 της Έξυπνης Πόλης. Οι χώροι πρασίνου είναι από τα Τοπωνύμια του GIS του Δήμου. Τα όρια των κοινοτήτων είναι του Δήμου, μέσα από το <a href="https://athenshoods.gr" target="_blank" rel="noopener">athenshoods.gr</a>. Υπόβαθρο χάρτη © συντελεστές OpenStreetMap.</p>
         <p>Ανοιχτός κώδικας (MIT) στο <a href="https://github.com/LocalAthenianDev/athens-breath" target="_blank" rel="noopener">GitHub</a>. Προσωπικό project, όχι επίσημη εφαρμογή του Δήμου.</p>
         <p class="sig">Μέρος του <a href="https://athensapps.gr">athensapps.gr</a> · <a href="https://github.com/LocalAthenianDev" target="_blank" rel="noopener">Local Athenian Dev</a></p>
       </div>
@@ -79,6 +80,6 @@
 
   <script src="vendor/leaflet/leaflet.js"></script>
   <script src="vendor/chartjs/chart.umd.js"></script>
-  <script src="app.js?v=2"></script>
+  <script src="app.js?v=3"></script>
 </body>
 </html>
