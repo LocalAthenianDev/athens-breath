@@ -1,0 +1,23 @@
+{
+  "name": "athens-breath",
+  "version": "1.0.0",
+  "description": "Athens Breath · Ανάσα: η ποιότητα του αέρα στις γειτονιές της Αθήνας, live από τα ανοιχτά δεδομένα των περιβαλλοντικών σταθμών του Δήμου Αθηναίων",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "MOCK=1 node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "author": "Thomas Ntoupis (LocalAthenianDev)",
+  "license": "MIT",
+  "dependencies": {
+    "@fontsource/commissioner": "^5.3.0",
+    "chart.js": "^4.4.1",
+    "compression": "^1.7.5",
+    "express": "^4.21.2",
+    "leaflet": "^1.9.4"
+  }
+}

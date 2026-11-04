@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="el">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Athens Breath · Ανάσα</title>
+  <meta name="description" content="Πώς αναπνέει η Αθήνα, γειτονιά με γειτονιά. Ποιότητα αέρα live από τους περιβαλλοντικούς σταθμούς του Δήμου Αθηναίων, ανά δημοτική κοινότητα και σταθμό.">
+  <meta name="theme-color" content="#1d4f91">
+  <link rel="canonical" href="https://breath.athensapps.gr">
+  <meta property="og:title" content="Athens Breath · Ανάσα">
+  <meta property="og:description" content="Ποιότητα αέρα live στις γειτονιές της Αθήνας, από τα ανοιχτά δεδομένα του Δήμου Αθηναίων.">
+  <meta property="og:url" content="https://breath.athensapps.gr">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="vendor/commissioner/400.css">
+  <link rel="stylesheet" href="vendor/commissioner/600.css">
+  <link rel="stylesheet" href="vendor/commissioner/700.css">
+  <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
+  <link rel="stylesheet" href="style.css?v=1">
+</head>
+<body>
+  <div id="envbar" class="envbar" hidden>Δοκιμαστική έκδοση</div>
+
+  <header class="top">
+    <a class="brand" href="./" aria-label="Athens Breath, αρχική">
+      <span class="sign" aria-hidden="true"><span class="sign-gr">ΑΝΑΣΑ</span><span class="sign-en">ATHENS BREATH</span></span>
+    </a>
+    <p class="tagline">Πώς αναπνέει η Αθήνα, γειτονιά με γειτονιά</p>
+    <div id="status" class="status" role="status">Φόρτωση δεδομένων…</div>
+  </header>
+
+  <nav class="controls" aria-label="Επιλογές χάρτη">
+    <div class="seg" role="group" aria-label="Τι δείχνει ο χάρτης" id="metric">
+      <button data-v="aqi" aria-pressed="true">Δείκτης αέρα</button>
+      <button data-v="pm2_5" aria-pressed="false">PM2.5</button>
+      <button data-v="pm10" aria-pressed="false">PM10</button>
+      <button data-v="no2" aria-pressed="false">NO₂</button>
+      <button data-v="o3" aria-pressed="false">O₃</button>
+      <button data-v="temperature" aria-pressed="false">Θερμοκρασία</button>
+    </div>
+    <div class="seg" role="group" aria-label="Περίοδος" id="period">
+      <button data-v="now" aria-pressed="true">Τώρα</button>
+      <button data-v="h24" aria-pressed="false">24 ώρες</button>
+      <button data-v="d7" aria-pressed="false">7 ημέρες</button>
+      <button data-v="d30" aria-pressed="false">30 ημέρες</button>
+    </div>
+  </nav>
+
+  <main class="layout">
+    <section class="mapwrap">
+      <div id="map" aria-label="Χάρτης κοινοτήτων και σταθμών"></div>
+      <div class="legend" id="legend" aria-live="polite"></div>
+    </section>
+    <section class="panel" id="panel" aria-live="polite"></section>
+  </main>
+
+  <section class="about" id="about">
+    <div class="about-grid">
+      <div>
+        <h2>Πώς διαβάζεται</h2>
+        <p>Ο <strong>Δείκτης αέρα</strong> είναι ο Ευρωπαϊκός Δείκτης Ποιότητας Αέρα (EAQI) σε έξι βαθμίδες, από «Πολύ καλή» έως «Εξαιρετικά κακή». Κάθε ώρα παίρνει τη χειρότερη βαθμίδα ανάμεσα σε PM2.5, PM10, NO₂, O₃ και SO₂.</p>
+        <p>Οι <strong>κοινότητες</strong> χρωματίζονται με τη διάμεσο των σταθμών τους για κάθε ώρα, ώστε ένας σταθμός σε πολυσύχναστο δρόμο να μη χαλάει μόνος του την εικόνα όλης της περιοχής.</p>
+        <p>Η <strong>καλύτερη ώρα για βόλτα</strong> βγαίνει από τον μέσο δείκτη κάθε ώρας της ημέρας τις τελευταίες 30 ημέρες. Για τα σωματίδια συγκρίνουμε και με τα ημερήσια όρια του Παγκόσμιου Οργανισμού Υγείας (2021).</p>
+      </div>
+      <div>
+        <h2>Τι πρέπει να ξέρεις</h2>
+        <p>Οι σταθμοί είναι αισθητήρες χαμηλού κόστους της Έξυπνης Γειτονιάς και όχι επίσημοι σταθμοί αναφοράς. Δείχνουν καλά τις διαφορές και τις τάσεις μέσα στην πόλη, αλλά οι απόλυτες τιμές έχουν απόκλιση.</p>
+        <p>Τιμές που δεν στέκουν φυσικά (π.χ. σωματίδια πάνω από 300 μg/m³ ή PM2.5 μεγαλύτερα από PM10) αφαιρούνται πριν από κάθε υπολογισμό. Αν ένας αισθητήρας σωματιδίων δίνει τέτοιες τιμές σε πάνω από το 25% των ωρών της εβδομάδας, τα σωματίδιά του δεν μετρούν καθόλου.</p>
+        <p>Οι θέσεις των σταθμών βγαίνουν από τη διεύθυνση του Μητρώου και είναι κατά προσέγγιση.</p>
+      </div>
+      <div>
+        <h2>Δεδομένα και κώδικας</h2>
+        <p>Όλα έρχονται live από την <a href="https://opendata.cityofathens.gr/dataset/env-all-stations" target="_blank" rel="noopener">πλατφόρμα ανοιχτών δεδομένων του Δήμου Αθηναίων</a> (CC BY 4.0), από το Υποέργο 3 της Έξυπνης Πόλης. Τα όρια των κοινοτήτων είναι του Δήμου, μέσα από το <a href="https://athenshoods.gr" target="_blank" rel="noopener">athenshoods.gr</a>. Υπόβαθρο χάρτη © συντελεστές OpenStreetMap.</p>
+        <p>Ανοιχτός κώδικας (MIT) στο <a href="https://github.com/LocalAthenianDev/athens-breath" target="_blank" rel="noopener">GitHub</a>. Προσωπικό project, όχι επίσημη εφαρμογή του Δήμου.</p>
+        <p class="sig">Μέρος του <a href="https://athensapps.gr">athensapps.gr</a> · <a href="https://github.com/LocalAthenianDev" target="_blank" rel="noopener">Local Athenian Dev</a></p>
+      </div>
+    </div>
+  </section>
+
+  <script src="vendor/leaflet/leaflet.js"></script>
+  <script src="vendor/chartjs/chart.umd.js"></script>
+  <script src="app.js?v=1"></script>
+</body>
+</html>
