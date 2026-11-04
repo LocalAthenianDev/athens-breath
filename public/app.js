@@ -146,9 +146,11 @@
   }
 
   // ---------- πάνελ ----------
-  function badge(level) {
-    if (!level) return '<div class="badge none"><span class="n">–</span><span class="u">EAQI</span></div>';
-    return `<div class="badge${darkText(level) ? ' dark' : ''}" style="background:${QCOL[level - 1]}"><span class="n">${level}</span><span class="u">από 6</span></div>`;
+  // Κλίμακα έξι βημάτων, από την καλύτερη (αριστερά) στη χειρότερη (δεξιά) ποιότητα αέρα
+  function scale(level) {
+    const steps = QCOL.map((c, i) => `<span class="step${level === i + 1 ? ' on' : ''}" style="background:${c}" title="${LEVELS[i]}"></span>`).join('');
+    return `<div class="scale" role="img" aria-label="${level ? `${levelText(level)}, βαθμίδα ${level} στις 6, όπου 1 είναι η καλύτερη` : 'Χωρίς μέτρηση'}">` +
+      `<div class="steps">${steps}</div><div class="ends"><span>Καθαρός αέρας</span><span>Επιβαρυμένος</span></div></div>`;
   }
   function heroBlock(obj) {
     const src = S.period === 'now' ? obj.now : obj[S.period];
@@ -160,7 +162,7 @@
     } else if (src) {
       why = `Από τους μέσους όρους για ${PERIODS[S.period]}` + (src.goodShare !== null ? `, καλός αέρας στο ${src.goodShare}% των ωρών` : '');
     }
-    return `<div class="hero">${badge(level)}<div><div class="what">${levelText(level)}</div><div class="why">${esc(why)}</div></div></div>`;
+    return `<div class="hero"><div class="what"><span class="dotq" style="background:${level ? QCOL[level - 1] : 'var(--off)'}"></span>${levelText(level)}</div><div class="why">${esc(why)}</div>${scale(level)}</div>`;
   }
   function kpis(obj) {
     const src = S.period === 'now' ? obj.now : obj[S.period];
